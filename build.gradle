@@ -45,7 +45,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'com.seon:common:0.0.2'
+    implementation 'com.seon:common:0.0.3'
 }
 
 tasks.named('test') {
