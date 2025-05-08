@@ -34,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
             if (user.getEmail().equals(joinRequest.getEmail())) throw new ApiException(ExceptionCode.BAD_REQUEST, "이메일 중복");
             if (user.getNickname().equals(joinRequest.getNickname())) throw new ApiException(ExceptionCode.BAD_REQUEST, "닉네임 중복");
         }
+
         User user = User.builder()
                 .id(IdGenerater.generate())
                 .userId(joinRequest.getUserId())
