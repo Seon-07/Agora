@@ -5,6 +5,7 @@ import com.seon.common.response.OperationResult;
 import com.seon.fairin.auth.dto.JoinRequest;
 import com.seon.fairin.auth.dto.LoginRequest;
 import com.seon.fairin.auth.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -21,10 +22,11 @@ import java.time.Duration;
  * @version 1.0
  * @since 2025-05-05
  */
+@Tag(name = "인증", description = "사용자 계정 인증 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthRestController {
     private final AuthService authService;
 
     @PostMapping("/join")

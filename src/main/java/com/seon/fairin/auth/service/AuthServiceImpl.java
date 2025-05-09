@@ -5,14 +5,19 @@ import com.seon.common.exception.ExceptionCode;
 import com.seon.common.util.IdGenerater;
 import com.seon.fairin.auth.dto.JoinRequest;
 import com.seon.fairin.auth.dto.LoginRequest;
+import com.seon.fairin.auth.entity.Role;
 import com.seon.fairin.auth.entity.User;
 import com.seon.fairin.auth.repository.AuthRepository;
+import com.seon.fairin.auth.repository.RoleRepository;
 import com.seon.fairin.jwt.JwtTokenProvider;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author seonjihwan
@@ -23,9 +28,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final AuthRepository authRepository;
+    private final RoleRepository roleRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, String> redisTemplate;
 
+    @Transactional
     @Override
     public void join(JoinRequest joinRequest) {
         List<User> duplicates = authRepository.findDuplicates(joinRequest.getUserId(), joinRequest.getEmail(), joinRequest.getNickname());
@@ -34,13 +42,16 @@ public class AuthServiceImpl implements AuthService {
             if (user.getEmail().equals(joinRequest.getEmail())) throw new ApiException(ExceptionCode.BAD_REQUEST, "이메일 중복");
             if (user.getNickname().equals(joinRequest.getNickname())) throw new ApiException(ExceptionCode.BAD_REQUEST, "닉네임 중복");
         }
-
+        String userRole = "USER";
+        Role role = roleRepository.findByRole("USER")
+                .orElseThrow(() -> new ApiException(ExceptionCode.NOT_FOUND, userRole + " 권한이 없습니다."));
         User user = User.builder()
                 .id(IdGenerater.generate())
                 .userId(joinRequest.getUserId())
                 .pw(passwordEncoder.encode(joinRequest.getPw()))
                 .email(joinRequest.getEmail())
                 .name(joinRequest.getName())
+                .role(role)
                 .nickname(joinRequest.getNickname())
                 .build();
         authRepository.save(user);
@@ -49,15 +60,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String login(LoginRequest loginRequest) {
         User user = authRepository.findByUserId(loginRequest.getUserId())
-                .orElseThrow(() -> new ApiException(ExceptionCode.BAD_REQUEST, "아이디 또는 비밀번호 오류"));
+                .orElseThrow(() -> new ApiException(ExceptionCode.INVALID_CREDENTIALS));
         String inputPw = loginRequest.getPw();
         if (!passwordEncoder.matches(inputPw, user.getPw())) {
-            System.out.println(inputPw);
-            System.out.println(user.getPw());
-            throw new ApiException(ExceptionCode.BAD_REQUEST, "아이디 또는 비밀번호 오류");
+            throw new ApiException(ExceptionCode.INVALID_CREDENTIALS);
         }
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId());
-        //레디스에 리프레시토큰 저장
+
+        redisTemplate.opsForValue().set("RFT:" + user.getUserId(), refreshToken, 7, TimeUnit.DAYS);
+
         return jwtTokenProvider.createAccessToken(user.getUserId());
     }
 

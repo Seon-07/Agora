@@ -36,8 +36,9 @@ public class User {
     @Column(name= "nickname", nullable = false, unique = true)
     private String nickname;
 
-    @Column(name= "role", nullable = false)
-    private String role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role", referencedColumnName = "id")
+    private Role role;
 
     @Column(name = "create_dttm")
     private LocalDateTime createDttm;
