@@ -1,5 +1,7 @@
 package com.seon.fairin.jwt;
 
+import com.seon.common.exception.ApiException;
+import com.seon.common.exception.ExceptionCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -41,15 +43,13 @@ public class JwtTokenProvider {
     @PostConstruct
     public void init() {
         if (secretKey == null || secretKey.isEmpty()) {
-            throw new IllegalArgumentException("JWT Secret Key is missing or empty");
+            throw new ApiException(ExceptionCode.INTERNAL_SERVER_ERROR, "JWT KEY MISSING");
         }
         key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));  // key 초기화
     }
-
     public String createAccessToken(String userId) {
         return createToken(userId, accessTokenValidTime);
     }
-
     public String createRefreshToken(String userId) {
         return createToken(userId, refreshTokenValidTime);
     }
@@ -80,6 +80,19 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
+    public String getUserIdIgnoreExpiration(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims().getSubject();
+        }
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -90,13 +103,5 @@ public class JwtTokenProvider {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
-    }
-
-    public String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
-        }
-        return null;
     }
 }

@@ -18,10 +18,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class User {
     @Id
-    @Column(name= "id",length = 32)
+    @Column(name= "id")
     private String id;
 
-    @Column(name = "user_id", length = 20, nullable = false, unique = true)
+    @Column(name = "user_id", nullable = false, unique = true)
     private String userId;
 
     @Column(name = "pw", nullable = false)
@@ -30,13 +30,13 @@ public class User {
     @Column(name= "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name= "name",length = 30, nullable = false)
+    @Column(name= "name", nullable = false)
     private String name;
 
-    @Column(name= "nickname",length = 30, nullable = false, unique = true)
+    @Column(name= "nickname", nullable = false, unique = true)
     private String nickname;
 
-    @Column(name= "role",length = 32, nullable = false)
+    @Column(name= "role", nullable = false)
     private String role;
 
     @Column(name = "create_dttm")
@@ -45,10 +45,10 @@ public class User {
     @Column(name = "update_dttm")
     private LocalDateTime updateDttm;
 
-    @Column(name = "use_yn", length = 1)
+    @Column(name = "use_yn")
     private String useYn;
 
-    @Column(name = "del_yn", length = 1)
+    @Column(name = "del_yn")
     private String delYn;
 
     @PrePersist
@@ -56,6 +56,7 @@ public class User {
         this.createDttm = this.updateDttm = LocalDateTime.now();
         this.useYn = this.useYn == null ? "Y" : this.useYn;
         this.delYn = this.delYn == null ? "N" : this.delYn;
+        this.role = "USER";
     }
 
     @PreUpdate
