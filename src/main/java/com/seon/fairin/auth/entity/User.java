@@ -36,9 +36,8 @@ public class User {
     @Column(name= "nickname", nullable = false, unique = true)
     private String nickname;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role", referencedColumnName = "id")
-    private Role role;
+    @Column(name= "role", nullable = false)
+    private String role;
 
     @Column(name = "create_dttm")
     private LocalDateTime createDttm;
@@ -57,6 +56,7 @@ public class User {
         this.createDttm = this.updateDttm = LocalDateTime.now();
         this.useYn = this.useYn == null ? "Y" : this.useYn;
         this.delYn = this.delYn == null ? "N" : this.delYn;
+        this.role = "USER";
     }
 
     @PreUpdate

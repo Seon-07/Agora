@@ -1,7 +1,6 @@
 package com.seon.fairin.jwt;
 
 import com.seon.fairin.auth.entity.User;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,11 +21,6 @@ public class UserInfo implements UserDetails {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(user.getRole().getRole()));
-    }
-
-    @Override
     public String getPassword() {
         return user.getPw();
     }
@@ -34,6 +28,11 @@ public class UserInfo implements UserDetails {
     @Override
     public String getUsername() {
         return user.getUserId();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 
     @Override
