@@ -1,5 +1,7 @@
 package com.seon.fairin.auth.controller;
 
+import com.seon.common.exception.ApiException;
+import com.seon.common.exception.ExceptionCode;
 import com.seon.common.response.ApiResponse;
 import com.seon.common.response.OperationResult;
 import com.seon.fairin.auth.dto.JoinRequest;
@@ -10,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 
@@ -41,7 +40,7 @@ public class AuthRestController {
         String token = authService.login(request);
         ResponseCookie accessToken = ResponseCookie.from("ACCESS_TOKEN", token)
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(false)//HTTP 환경: false, HTTPS 환경: true로 변경하기
                     .path("/")
                     .sameSite("Lax")
                     .maxAge(Duration.ofMinutes(10))
@@ -50,5 +49,10 @@ public class AuthRestController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessToken.toString())
                 .body(responseBody);
+    }
+
+    @GetMapping("/test")
+    public void testError() {
+        throw new ApiException(ExceptionCode.BAD_REQUEST, "테스트 에러");
     }
 }

@@ -26,14 +26,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String uri = request.getRequestURI();
+        log.info("URI: {}", uri);
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod()) || uri.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        log.info("시큐리티 실행");
         try {
+            log.info("시큐리티 실행");
             String token = getToken(request);
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception ex) {
-            log.info("JWT 인증 실패: {}", ex.getMessage());
+        } catch (Exception e) {
+            log.info("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);

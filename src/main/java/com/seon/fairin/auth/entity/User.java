@@ -56,7 +56,7 @@ public class User {
         this.createDttm = this.updateDttm = LocalDateTime.now();
         this.useYn = this.useYn == null ? "Y" : this.useYn;
         this.delYn = this.delYn == null ? "N" : this.delYn;
-        this.role = "USER";
+        this.role = "ROLE_USER";
     }
 
     @PreUpdate

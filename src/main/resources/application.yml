@@ -21,3 +21,5 @@ jwt:
   key: ${JWT_KEY}
   att: ${JWT_ACCESS_TIME}
   rtt: ${JWT_REFRESH_TIME}
+cors:
+  url: ${CORS_URL}

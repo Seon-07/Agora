@@ -36,7 +36,7 @@ public class JwtTokenProvider {
     @Value("${jwt.rtt}")
     private long refreshTokenValidTime;
 
-    private Key key;  // 필드를 나중에 초기화
+    private Key key;
 
     private final UserDetailsService userDetailsService;
 
@@ -45,7 +45,7 @@ public class JwtTokenProvider {
         if (secretKey == null || secretKey.isEmpty()) {
             throw new ApiException(ExceptionCode.INTERNAL_SERVER_ERROR, "JWT KEY MISSING");
         }
-        key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));  // key 초기화
+        key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
     public String createAccessToken(String userId) {
         return createToken(userId, accessTokenValidTime);
