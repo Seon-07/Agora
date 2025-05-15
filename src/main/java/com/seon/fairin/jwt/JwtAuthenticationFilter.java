@@ -32,9 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        log.info("시큐리티 실행");
         try {
-            log.info("시큐리티 실행");
             String token = getToken(request);
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
@@ -43,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             log.info("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
+            //인증실패 로직 추가해야함
         }
         filterChain.doFilter(request, response);
     }

@@ -1,6 +1,7 @@
 package com.seon.fairin.auth.service;
 
 import com.seon.fairin.auth.dto.JoinRequest;
+import com.seon.fairin.auth.dto.JwtTokens;
 import com.seon.fairin.auth.dto.LoginRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public interface AuthService {
     void join(JoinRequest joinRequest);
-    String login(LoginRequest loginRequest);
-    void reissue(HttpServletRequest request, HttpServletResponse response);
+    JwtTokens login(LoginRequest loginRequest);
+    JwtTokens reissue(HttpServletRequest request);
 }
