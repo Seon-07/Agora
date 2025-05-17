@@ -8,6 +8,7 @@ import com.seon.fairin.auth.dto.LoginRequest;
 import com.seon.fairin.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -34,14 +35,14 @@ public class AuthRestController {
     private final boolean isSecure = false;
 
     @PostMapping("/join")
-    public ResponseEntity<ApiResponse> join(@RequestBody JoinRequest request) {
+    public ResponseEntity<ApiResponse> join(@RequestBody @Valid JoinRequest request) {
         authService.join(request);
         ApiResponse responseBody = OperationResult.success("회원가입 성공");
         return ResponseEntity.ok().body(responseBody);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse> login(@RequestBody @Valid LoginRequest request) {
         JwtTokens tokens = authService.login(request);
         ResponseCookie accessCookie = generateCookie(tokens, "ACCESS");
         ResponseCookie refreshCookie = generateCookie(tokens, "REFRESH");

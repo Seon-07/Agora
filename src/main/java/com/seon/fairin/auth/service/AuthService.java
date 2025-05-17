@@ -4,7 +4,6 @@ import com.seon.fairin.auth.dto.JoinRequest;
 import com.seon.fairin.auth.dto.JwtTokens;
 import com.seon.fairin.auth.dto.LoginRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @author seonjihwan

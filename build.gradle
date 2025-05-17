@@ -52,7 +52,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core'
 
 
-    implementation 'com.seon:common:0.2.1'
+    implementation 'com.seon:common:0.3.0'
 }
 
 jacoco {

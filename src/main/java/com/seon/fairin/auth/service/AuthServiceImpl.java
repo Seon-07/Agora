@@ -40,9 +40,9 @@ public class AuthServiceImpl implements AuthService {
     public void join(JoinRequest joinRequest) {
         List<User> duplicates = authRepository.findDuplicates(joinRequest.getUserId(), joinRequest.getEmail(), joinRequest.getNickname());
         for (User user : duplicates) {
-            if (user.getUserId().equals(joinRequest.getUserId())) throw new ApiException(ExceptionCode.BAD_REQUEST, "ID가 중복");
-            if (user.getEmail().equals(joinRequest.getEmail())) throw new ApiException(ExceptionCode.BAD_REQUEST, "이메일 중복");
-            if (user.getNickname().equals(joinRequest.getNickname())) throw new ApiException(ExceptionCode.BAD_REQUEST, "닉네임 중복");
+            if (user.getUserId().equals(joinRequest.getUserId())) throw new ApiException(ExceptionCode.BAD_REQUEST, "이미 사용중인 아이디입니다.");
+            if (user.getEmail().equals(joinRequest.getEmail())) throw new ApiException(ExceptionCode.BAD_REQUEST, "이미 사용중인 이메일입니다.");
+            if (user.getNickname().equals(joinRequest.getNickname())) throw new ApiException(ExceptionCode.BAD_REQUEST, "이미 사용중인 닉네임입니다.");
         }
         User user = User.builder()
                 .id(IdGenerater.generate())
@@ -57,14 +57,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtTokens login(LoginRequest loginRequest) {
+        //아이디 찾기
         User user = authRepository.findByUserId(loginRequest.getUserId())
                 .orElseThrow(() -> new ApiException(ExceptionCode.INVALID_CREDENTIALS));
         String inputPw = loginRequest.getPw();
+        //검색된 아이디 비밀번호와 입력 비밀번호 비교
         if (!passwordEncoder.matches(inputPw, user.getPw())) {
             throw new ApiException(ExceptionCode.INVALID_CREDENTIALS);
         }
+        //사용불가능 계정 판단
+        if (user.getUseYn().equals("N")) throw new ApiException(ExceptionCode.FORBIDDEN, "사용할 수 없는 계정입니다.");
+        if (user.getDelYn().equals("Y")) throw new ApiException(ExceptionCode.FORBIDDEN, "삭제된 계정입니다.");
+
         log.info(user.getUserId() + "로그인");
 
+        //로그인 성공 시 토큰 생성
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
         String accessToken = jwtTokenProvider.createAccessToken(user);
 

@@ -54,4 +54,8 @@ public class UserInfo implements UserDetails {
     public boolean isEnabled() {
         return !"N".equals(user.getUseYn()) && !"Y".equals(user.getDelYn());
     }
+
+    public String getId() {
+        return user.getId();
+    }
 }
