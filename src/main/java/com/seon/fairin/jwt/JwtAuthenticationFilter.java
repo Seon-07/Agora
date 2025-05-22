@@ -37,11 +37,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            }else{
+                log.info("JWT 인증 실패: 토큰이 만료되거나 없음.");
             }
         } catch (Exception e) {
             log.info("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            //인증실패 로직 추가해야함
         }
         filterChain.doFilter(request, response);
     }

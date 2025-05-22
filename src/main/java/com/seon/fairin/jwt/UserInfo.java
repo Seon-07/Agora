@@ -37,12 +37,12 @@ public class UserInfo implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return !"N".equals(user.getUseYn());
+        return user.isUseYn();
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return !"N".equals(user.getUseYn());
+        return user.isUseYn();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class UserInfo implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return !"N".equals(user.getUseYn()) && !"Y".equals(user.getDelYn());
+        return user.isUseYn() && !user.isDelYn();
     }
 
     public String getId() {

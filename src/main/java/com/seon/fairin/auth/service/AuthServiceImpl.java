@@ -66,8 +66,8 @@ public class AuthServiceImpl implements AuthService {
             throw new ApiException(ExceptionCode.INVALID_CREDENTIALS);
         }
         //사용불가능 계정 판단
-        if (user.getUseYn().equals("N")) throw new ApiException(ExceptionCode.FORBIDDEN, "사용할 수 없는 계정입니다.");
-        if (user.getDelYn().equals("Y")) throw new ApiException(ExceptionCode.FORBIDDEN, "삭제된 계정입니다.");
+        if (!user.isUseYn()) throw new ApiException(ExceptionCode.FORBIDDEN, "사용할 수 없는 계정입니다.");
+        if (user.isDelYn()) throw new ApiException(ExceptionCode.FORBIDDEN, "삭제된 계정입니다.");
 
         log.info(user.getUserId() + "로그인");
 
