@@ -26,14 +26,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String uri = request.getRequestURI();
+        log.info("URI: {}", uri);
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod()) || uri.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         try {
             String token = getToken(request);
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            }else{
+                log.info("JWT 인증 실패: 토큰이 만료되거나 없음.");
             }
-        } catch (Exception ex) {
-            log.info("JWT 인증 실패: {}", ex.getMessage());
+        } catch (Exception e) {
+            log.info("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);

@@ -2,6 +2,7 @@ package com.seon.fairin.jwt;
 
 import com.seon.common.exception.ApiException;
 import com.seon.common.exception.ExceptionCode;
+import com.seon.fairin.auth.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -36,7 +37,7 @@ public class JwtTokenProvider {
     @Value("${jwt.rtt}")
     private long refreshTokenValidTime;
 
-    private Key key;  // 필드를 나중에 초기화
+    private Key key;
 
     private final UserDetailsService userDetailsService;
 
@@ -45,17 +46,19 @@ public class JwtTokenProvider {
         if (secretKey == null || secretKey.isEmpty()) {
             throw new ApiException(ExceptionCode.INTERNAL_SERVER_ERROR, "JWT KEY MISSING");
         }
-        key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));  // key 초기화
+        key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
-    public String createAccessToken(String userId) {
-        return createToken(userId, accessTokenValidTime);
+    public String createAccessToken(User user) {
+        return createToken(user, accessTokenValidTime, "access");
     }
-    public String createRefreshToken(String userId) {
-        return createToken(userId, refreshTokenValidTime);
+    public String createRefreshToken(User user) {
+        return createToken(user, refreshTokenValidTime, "refresh");
     }
 
-    private String createToken(String userId, long validTime) {
-        Claims claims = Jwts.claims().setSubject(userId);
+    private String createToken(User user, long validTime, String type) {
+        Claims claims = Jwts.claims().setSubject(user.getUserId());
+        claims.put("type", type);
+        claims.put("role", user.getRole());
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
@@ -78,19 +81,6 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
-    }
-
-    public String getUserIdIgnoreExpiration(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (ExpiredJwtException e) {
-            return e.getClaims().getSubject();
-        }
     }
 
     public boolean validateToken(String token) {

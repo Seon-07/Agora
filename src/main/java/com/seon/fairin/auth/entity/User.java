@@ -46,17 +46,17 @@ public class User {
     private LocalDateTime updateDttm;
 
     @Column(name = "use_yn")
-    private String useYn;
+    private boolean useYn;
 
     @Column(name = "del_yn")
-    private String delYn;
+    private boolean delYn;
 
     @PrePersist
     protected void onCreate() {
         this.createDttm = this.updateDttm = LocalDateTime.now();
-        this.useYn = this.useYn == null ? "Y" : this.useYn;
-        this.delYn = this.delYn == null ? "N" : this.delYn;
-        this.role = "USER";
+        this.useYn = true;
+        this.delYn = false;
+        this.role = "ROLE_USER";
     }
 
     @PreUpdate

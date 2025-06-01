@@ -9,5 +9,4 @@ class FairInApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }
