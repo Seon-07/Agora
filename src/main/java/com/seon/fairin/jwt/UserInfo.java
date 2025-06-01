@@ -58,4 +58,8 @@ public class UserInfo implements UserDetails {
     public String getId() {
         return user.getId();
     }
+
+    public String getNickname() {
+        return user.getNickname();
+    }
 }

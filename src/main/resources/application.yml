@@ -23,3 +23,9 @@ jwt:
   rtt: ${JWT_REFRESH_TIME}
 cors:
   url: ${CORS_URL}
+
+# GEMINI API KEY
+gemini:
+  api:
+    key: ${GNKEY}
+    uri: ${GNURI}
