@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 gradle.properties
 .env
+prompts.json
 
 ### STS ###
 .apt_generated

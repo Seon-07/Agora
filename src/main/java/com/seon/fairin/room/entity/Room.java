@@ -1,5 +1,6 @@
 package com.seon.fairin.room.entity;
 
+import com.seon.fairin.room.dto.RoomStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

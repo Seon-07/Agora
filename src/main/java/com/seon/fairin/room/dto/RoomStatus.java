@@ -1,4 +1,4 @@
-package com.seon.fairin.room.entity;
+package com.seon.fairin.room.dto;
 
 /**
  * @author seonjihwan

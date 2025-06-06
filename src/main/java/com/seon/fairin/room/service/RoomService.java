@@ -3,7 +3,7 @@ package com.seon.fairin.room.service;
 import com.seon.fairin.jwt.UserInfo;
 import com.seon.fairin.room.dto.CreateRoomRequest;
 import com.seon.fairin.room.dto.RoomResponse;
-import com.seon.fairin.room.entity.RoomStatus;
+import com.seon.fairin.room.dto.RoomStatus;
 
 import java.util.List;
 

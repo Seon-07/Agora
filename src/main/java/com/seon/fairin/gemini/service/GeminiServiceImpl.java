@@ -1,13 +1,13 @@
-package com.seon.fairin.chat.service;
+package com.seon.fairin.gemini.service;
 
+import com.seon.fairin.gemini.dto.GeminiRequest;
+import com.seon.fairin.config.PromptLoader;
+import com.seon.fairin.gemini.dto.PromptDiv;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author seonjihwan
@@ -16,7 +16,7 @@ import java.util.Map;
  */
 @Service
 @RequiredArgsConstructor
-public class ChatServiceImpl implements ChatService {
+public class GeminiServiceImpl implements GeminiService {
 
     @Value("${gemini.api.key}")
     private String apiKey;
@@ -25,17 +25,14 @@ public class ChatServiceImpl implements ChatService {
     private String apiUrl;
 
     private final WebClient webClient;
+    private final PromptLoader promptLoader;
 
-    public String sendString(String message) {
-        System.out.println(apiUrl);
-        System.out.println(apiKey);
-        Map<String, Object> requestBody = Map.of(
-                "contents", List.of(Map.of(
-                        "role", "user",
-                        "parts", List.of(Map.of("text", message))
-                ))
-        );
+    public String sendGemini(String message) {
+        GeminiRequest requestBody = new GeminiRequest(promptLoader.getPrompt(PromptDiv.intro.toString()), "여성가족부 폐지");
+        return geminiPostRequest(requestBody);
+    }
 
+    public String geminiPostRequest(Object requestBody) {
         return webClient.post()
                 .uri(apiUrl + "?key=" + apiKey)
                 .contentType(MediaType.APPLICATION_JSON)

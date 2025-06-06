@@ -5,7 +5,7 @@ import com.seon.common.response.DataResult;
 import com.seon.common.response.OperationResult;
 import com.seon.fairin.jwt.UserInfo;
 import com.seon.fairin.room.dto.CreateRoomRequest;
-import com.seon.fairin.room.entity.RoomStatus;
+import com.seon.fairin.room.dto.RoomStatus;
 import com.seon.fairin.room.service.RoomService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

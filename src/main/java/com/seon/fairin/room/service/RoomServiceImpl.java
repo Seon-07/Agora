@@ -5,7 +5,7 @@ import com.seon.fairin.jwt.UserInfo;
 import com.seon.fairin.room.dto.CreateRoomRequest;
 import com.seon.fairin.room.dto.RoomResponse;
 import com.seon.fairin.room.entity.Room;
-import com.seon.fairin.room.entity.RoomStatus;
+import com.seon.fairin.room.dto.RoomStatus;
 import com.seon.fairin.room.repository.RoomRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
