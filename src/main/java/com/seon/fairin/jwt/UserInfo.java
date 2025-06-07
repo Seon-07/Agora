@@ -1,6 +1,6 @@
 package com.seon.fairin.jwt;
 
-import com.seon.fairin.auth.entity.User;
+import com.seon.fairin.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -61,5 +61,9 @@ public class UserInfo implements UserDetails {
 
     public String getNickname() {
         return user.getNickname();
+    }
+
+    public String getRole(){
+        return user.getRole();
     }
 }

@@ -1,6 +1,6 @@
 package com.seon.fairin.auth.repository;
 
-import com.seon.fairin.auth.entity.User;
+import com.seon.fairin.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

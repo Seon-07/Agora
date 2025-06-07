@@ -14,4 +14,5 @@ public interface AuthService {
     void join(JoinRequest joinRequest);
     JwtTokens login(LoginRequest loginRequest);
     JwtTokens reissue(HttpServletRequest request);
+    void logout(HttpServletRequest request);
 }

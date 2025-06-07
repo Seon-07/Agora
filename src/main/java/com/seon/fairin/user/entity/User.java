@@ -1,4 +1,4 @@
-package com.seon.fairin.auth.entity;
+package com.seon.fairin.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

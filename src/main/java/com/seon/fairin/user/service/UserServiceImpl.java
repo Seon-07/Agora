@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
-    private final AuthRepository authRepository;
 
     public String getUserNickname(UserInfo userInfo){
         return userInfo.getNickname();
