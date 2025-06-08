@@ -79,7 +79,6 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user);
 
         redisTemplate.opsForValue().set("RFT:" + user.getUserId(), refreshToken, 7, TimeUnit.DAYS);
-        log.info("RFT:" + user.getUserId() + " = " + refreshToken + "생성");
 
         return JwtTokens.builder()
                 .accessToken(accessToken)

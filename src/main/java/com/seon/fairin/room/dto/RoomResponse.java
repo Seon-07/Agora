@@ -17,7 +17,7 @@ public class RoomResponse {
 
     private String name;
 
-    private String des;
+    private String topic;
 
     private String hostId;
 

@@ -27,8 +27,8 @@ public class GeminiServiceImpl implements GeminiService {
     private final WebClient webClient;
     private final PromptLoader promptLoader;
 
-    public String sendGemini(String message) {
-        GeminiRequest requestBody = new GeminiRequest(promptLoader.getPrompt(PromptDiv.intro.toString()), "여성가족부 폐지");
+    public String sendGemini(PromptDiv promptDiv, String message) {
+        GeminiRequest requestBody = new GeminiRequest(promptLoader.getPrompt(promptDiv.toString()), message);
         return geminiPostRequest(requestBody);
     }
 

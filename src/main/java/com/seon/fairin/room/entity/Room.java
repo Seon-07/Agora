@@ -25,8 +25,8 @@ public class Room {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "des")
-    private String des;
+    @Column(name = "topic")
+    private String topic;
 
     @Column(name = "host_id", nullable = false)
     private String hostId;

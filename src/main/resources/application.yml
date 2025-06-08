@@ -16,7 +16,7 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 jwt:
   key: ${JWT_KEY}
   att: ${JWT_ACCESS_TIME}

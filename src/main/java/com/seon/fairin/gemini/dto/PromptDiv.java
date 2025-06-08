@@ -13,7 +13,8 @@ public enum PromptDiv {
     after_argument("입론 후 정리"),
     after_rebuttal("반론 요약 및 다음 라운드 유도"),
     closing("결론"),
-    compress("압축 및 필터");
+    compress("압축 및 필터"),
+    validator("토론 주제 적절성 검사");
 
     private final String des;
 
