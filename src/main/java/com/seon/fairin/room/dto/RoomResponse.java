@@ -1,9 +1,7 @@
 package com.seon.fairin.room.dto;
 
-import com.seon.fairin.room.entity.RoomStatus;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +17,7 @@ public class RoomResponse {
 
     private String name;
 
-    private String des;
+    private String topic;
 
     private String hostId;
 

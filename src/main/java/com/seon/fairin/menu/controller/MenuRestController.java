@@ -1,9 +1,9 @@
-package com.seon.fairin.user.controller;
+package com.seon.fairin.menu.controller;
 
 import com.seon.common.response.ApiResponse;
 import com.seon.common.response.DataResult;
 import com.seon.fairin.jwt.UserInfo;
-import com.seon.fairin.user.service.UserService;
+import com.seon.fairin.menu.service.MenuService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,19 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * @author seonjihwan
  * @version 1.0
- * @since 2025-05-23
+ * @since 2025-06-08
  */
-@Tag(name = "사용자", description = "사용자 정보 관련 API")
+@Tag(name = "메뉴", description = "메뉴 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
-public class UserController {
+@RequestMapping("/api/menu")
+public class MenuRestController {
 
-    private final UserService userService;
+    private final MenuService menuService;
 
-    @GetMapping("/nickname")
-    public ResponseEntity<ApiResponse> getUserName(@AuthenticationPrincipal UserInfo user){
-        ApiResponse responseBody = DataResult.success(userService.getUserNickname(user));
+    @GetMapping
+    public ResponseEntity<ApiResponse> getMenuList(@AuthenticationPrincipal UserInfo user){
+        ApiResponse responseBody = DataResult.success(menuService.getMeusList(user));
         return ResponseEntity.ok().body(responseBody);
     }
 }

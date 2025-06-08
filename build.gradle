@@ -54,7 +54,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core'
 
 
-    implementation 'com.seon:common:0.4.0'
+    implementation 'com.seon:common:0.5.0'
 }
 
 jacoco {

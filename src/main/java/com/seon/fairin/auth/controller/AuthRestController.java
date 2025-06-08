@@ -52,6 +52,31 @@ public class AuthRestController {
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(responseBody);
     }
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
+        //엑세스 토큰 삭제(클라이언트)
+        ResponseCookie deleteAccessCookie = ResponseCookie.from("ACCESS_TOKEN", "")
+                .httpOnly(true)
+                .secure(isSecure)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(0)
+                .build();
+        //리프레시 토큰 삭제(클라이언트)
+        ResponseCookie deleteRefreshCookie = ResponseCookie.from("REFRESH_TOKEN", "")
+                .httpOnly(true)
+                .secure(isSecure)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(0)
+                .build();
+        ApiResponse responseBody = OperationResult.success("로그아웃 성공");
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteAccessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, deleteRefreshCookie.toString())
+                .body(responseBody);
+    }
 
     @PostMapping("/reissue")
     public ResponseEntity<ApiResponse> reissue(HttpServletRequest request) {

@@ -2,7 +2,7 @@ package com.seon.fairin.jwt;
 
 import com.seon.common.exception.ApiException;
 import com.seon.common.exception.ExceptionCode;
-import com.seon.fairin.auth.entity.User;
+import com.seon.fairin.user.entity.User;
 import com.seon.fairin.auth.repository.AuthRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,5 +1,6 @@
 package com.seon.fairin.jwt;
 
+import com.seon.common.exception.ExceptionCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
@@ -39,10 +40,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }else{
                 log.info("JWT 인증 실패: 토큰이 만료되거나 없음.");
+                response.setStatus(ExceptionCode.FORBIDDEN.getStatus());
+                return;
             }
         } catch (Exception e) {
             log.info("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
+            response.setStatus(ExceptionCode.FORBIDDEN.getStatus());
+            return;
         }
         filterChain.doFilter(request, response);
     }

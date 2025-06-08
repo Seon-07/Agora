@@ -16,7 +16,7 @@ public class CreateRoomRequest {
     @NotBlank(message = "방 제목을 입력해주세요.")
     private String name;
 
-    private String des;
+    private String topic;
 
     private boolean isPrivate;
 }

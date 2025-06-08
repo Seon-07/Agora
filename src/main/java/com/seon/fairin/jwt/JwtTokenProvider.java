@@ -2,11 +2,13 @@ package com.seon.fairin.jwt;
 
 import com.seon.common.exception.ApiException;
 import com.seon.common.exception.ExceptionCode;
-import com.seon.fairin.auth.entity.User;
-import io.jsonwebtoken.*;
+import com.seon.fairin.user.entity.User;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -75,6 +77,9 @@ public class JwtTokenProvider {
     }
 
     public String getUserId(String token) {
+        if(token == null || token.isEmpty()) {
+            throw new ApiException(ExceptionCode.FORBIDDEN, "JWT MISSING");
+        }
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

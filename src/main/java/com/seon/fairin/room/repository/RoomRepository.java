@@ -1,7 +1,7 @@
 package com.seon.fairin.room.repository;
 
 import com.seon.fairin.room.entity.Room;
-import com.seon.fairin.room.entity.RoomStatus;
+import com.seon.fairin.room.dto.RoomStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

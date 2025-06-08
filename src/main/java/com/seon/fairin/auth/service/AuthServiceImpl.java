@@ -6,7 +6,7 @@ import com.seon.common.util.IdGenerater;
 import com.seon.fairin.auth.dto.JoinRequest;
 import com.seon.fairin.auth.dto.JwtTokens;
 import com.seon.fairin.auth.dto.LoginRequest;
-import com.seon.fairin.auth.entity.User;
+import com.seon.fairin.user.entity.User;
 import com.seon.fairin.auth.repository.AuthRepository;
 import com.seon.fairin.jwt.JwtTokenProvider;
 import jakarta.servlet.http.Cookie;
@@ -40,8 +40,11 @@ public class AuthServiceImpl implements AuthService {
     public void join(JoinRequest joinRequest) {
         List<User> duplicates = authRepository.findDuplicates(joinRequest.getUserId(), joinRequest.getEmail(), joinRequest.getNickname());
         for (User user : duplicates) {
+            //중복 아이디 확인
             if (user.getUserId().equals(joinRequest.getUserId())) throw new ApiException(ExceptionCode.BAD_REQUEST, "이미 사용중인 아이디입니다.");
+            //중복 이메일 확인
             if (user.getEmail().equals(joinRequest.getEmail())) throw new ApiException(ExceptionCode.BAD_REQUEST, "이미 사용중인 이메일입니다.");
+            //중복 닉네임 확인
             if (user.getNickname().equals(joinRequest.getNickname())) throw new ApiException(ExceptionCode.BAD_REQUEST, "이미 사용중인 닉네임입니다.");
         }
         User user = User.builder()
@@ -76,12 +79,28 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user);
 
         redisTemplate.opsForValue().set("RFT:" + user.getUserId(), refreshToken, 7, TimeUnit.DAYS);
-        log.info("RFT:" + user.getUserId() + " = " + refreshToken + "생성");
 
         return JwtTokens.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+    @Override
+    public void logout(HttpServletRequest request) {
+        String refreshToken = getToken(request);
+        if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
+            log.warn("유효하지 않거나 존재하지 않는 리프레시 토큰.");
+            return;
+        }
+        String userId = jwtTokenProvider.getUserId(refreshToken);
+        String key = "RFT:" + userId;
+
+        Boolean existed = redisTemplate.delete(key);
+        if (existed) {
+            log.info("Redis 리프레시 토큰 삭제: {}", key);
+        } else {
+            log.warn("Redis에 존재하지 않는 키: {}", key);
+        }
     }
 
     @Override
