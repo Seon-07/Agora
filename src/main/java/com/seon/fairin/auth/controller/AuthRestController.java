@@ -3,6 +3,7 @@ package com.seon.fairin.auth.controller;
 import com.seon.common.response.ApiResponse;
 import com.seon.common.response.OperationResult;
 import com.seon.fairin.auth.dto.JoinRequest;
+import com.seon.fairin.auth.dto.JwtToken;
 import com.seon.fairin.auth.dto.JwtTokens;
 import com.seon.fairin.auth.dto.LoginRequest;
 import com.seon.fairin.auth.service.AuthService;
@@ -44,8 +45,8 @@ public class AuthRestController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(@RequestBody @Valid LoginRequest request) {
         JwtTokens tokens = authService.login(request);
-        ResponseCookie accessCookie = generateCookie(tokens, "ACCESS");
-        ResponseCookie refreshCookie = generateCookie(tokens, "REFRESH");
+        ResponseCookie accessCookie = generateCookie(tokens, JwtToken.ACCESS_TOKEN.getType());
+        ResponseCookie refreshCookie = generateCookie(tokens, JwtToken.REFRESH_TOKEN.getType());
         ApiResponse responseBody = OperationResult.success("로그인 성공");
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
@@ -55,7 +56,7 @@ public class AuthRestController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
         //엑세스 토큰 삭제(클라이언트)
-        ResponseCookie deleteAccessCookie = ResponseCookie.from("ACCESS_TOKEN", "")
+        ResponseCookie deleteAccessCookie = ResponseCookie.from(JwtToken.ACCESS_TOKEN.name(), "")
                 .httpOnly(true)
                 .secure(isSecure)
                 .path("/")
@@ -63,13 +64,16 @@ public class AuthRestController {
                 .maxAge(0)
                 .build();
         //리프레시 토큰 삭제(클라이언트)
-        ResponseCookie deleteRefreshCookie = ResponseCookie.from("REFRESH_TOKEN", "")
+        ResponseCookie deleteRefreshCookie = ResponseCookie.from(JwtToken.REFRESH_TOKEN.name(), "")
                 .httpOnly(true)
                 .secure(isSecure)
                 .path("/")
                 .sameSite("Lax")
                 .maxAge(0)
                 .build();
+
+        //Redis 에서 토큰 제거
+        authService.logout(request);
         ApiResponse responseBody = OperationResult.success("로그아웃 성공");
 
         return ResponseEntity.ok()
@@ -82,8 +86,8 @@ public class AuthRestController {
     public ResponseEntity<ApiResponse> reissue(HttpServletRequest request) {
         JwtTokens tokens = authService.reissue(request);
 
-        ResponseCookie accessCookie = generateCookie(tokens, "ACCESS");
-        ResponseCookie refreshCookie = generateCookie(tokens, "REFRESH");
+        ResponseCookie accessCookie = generateCookie(tokens, JwtToken.ACCESS_TOKEN.getType());
+        ResponseCookie refreshCookie = generateCookie(tokens, JwtToken.REFRESH_TOKEN.getType());
 
         ApiResponse responseBody = OperationResult.success("토큰 재발급");
         return ResponseEntity.ok()
@@ -93,9 +97,9 @@ public class AuthRestController {
     }
 
     public ResponseCookie generateCookie(JwtTokens tokens, String type) {
-        String tokenType = type.equals("ACCESS") ? "ACCESS_TOKEN" : "REFRESH_TOKEN";
-        String token = type.equals("ACCESS") ? tokens.getAccessToken() : tokens.getRefreshToken();
-        Duration maxAge = type.equals("ACCESS") ? Duration.ofMinutes(5) : Duration.ofDays(7);
+        String tokenType = type.equals(JwtToken.ACCESS_TOKEN.getType()) ? JwtToken.ACCESS_TOKEN.name() : JwtToken.REFRESH_TOKEN.name();
+        String token = type.equals(JwtToken.ACCESS_TOKEN.getType()) ? tokens.getAccessToken() : tokens.getRefreshToken();
+        Duration maxAge = type.equals(JwtToken.ACCESS_TOKEN.getType()) ? Duration.ofMinutes(5) : Duration.ofDays(7);
 
         return ResponseCookie.from(tokenType, token)
                 .httpOnly(true)

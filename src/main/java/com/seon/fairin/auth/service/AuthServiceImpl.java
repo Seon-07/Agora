@@ -35,6 +35,10 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
 
+
+    /**
+     * 회원가입
+     */
     @Transactional
     @Override
     public void join(JoinRequest joinRequest) {
@@ -58,6 +62,9 @@ public class AuthServiceImpl implements AuthService {
         authRepository.save(user);
     }
 
+    /**
+     * 로그인
+     */
     @Override
     public JwtTokens login(LoginRequest loginRequest) {
         //아이디 찾기
@@ -85,6 +92,10 @@ public class AuthServiceImpl implements AuthService {
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    /**
+     * 로그아웃
+     */
     @Override
     public void logout(HttpServletRequest request) {
         String refreshToken = getToken(request);
@@ -103,6 +114,10 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    /**
+     * 토큰 재발급
+     * - 현재 클라이언트 refresh 토큰이 유효하면 새로운 access, refresh 토큰 재발급
+     */
     @Override
     public JwtTokens reissue(HttpServletRequest request) {
         //리프레시 토큰에서 userId 가져오기
@@ -128,6 +143,9 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    /**
+     * 현재 접속중인 클라이언트의 refresh 토큰 가져오기
+     */
     public String getToken(HttpServletRequest request) {
         if (request.getCookies() == null) return null;
         for (Cookie cookie : request.getCookies()) {
