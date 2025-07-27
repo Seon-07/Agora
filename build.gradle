@@ -50,9 +50,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'org.mockito:mockito-core'
-
 
     implementation 'com.seon:common:0.5.0'
 }
@@ -71,5 +68,18 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: [
+                            '**/dto/**',
+                            '**/entity/**',
+                            '**/controller/**',
+                            '**/repository/**',
+                            '**/config/**'
+                    ])
+                })
+        )
     }
 }
