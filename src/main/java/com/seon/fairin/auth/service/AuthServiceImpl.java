@@ -6,6 +6,7 @@ import com.seon.common.util.IdGenerater;
 import com.seon.fairin.auth.dto.JoinRequest;
 import com.seon.fairin.auth.dto.JwtTokens;
 import com.seon.fairin.auth.dto.LoginRequest;
+import com.seon.fairin.common.service.RedisService;
 import com.seon.fairin.user.entity.User;
 import com.seon.fairin.auth.repository.AuthRepository;
 import com.seon.fairin.jwt.JwtTokenProvider;
@@ -33,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthRepository authRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisService redisService;
 
 
     /**
@@ -85,7 +86,8 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
         String accessToken = jwtTokenProvider.createAccessToken(user);
 
-        redisTemplate.opsForValue().set("RFT:" + user.getUserId(), refreshToken, 7, TimeUnit.DAYS);
+        //레디스에 리프레시 토큰 저장
+        redisService.set("RFT:" + user.getUserId(), refreshToken, 7, TimeUnit.DAYS);
 
         return JwtTokens.builder()
                 .accessToken(accessToken)
@@ -98,7 +100,9 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public void logout(HttpServletRequest request) {
+        //토큰 가져오기
         String refreshToken = getToken(request);
+
         if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
             log.warn("유효하지 않거나 존재하지 않는 리프레시 토큰.");
             return;
@@ -106,7 +110,7 @@ public class AuthServiceImpl implements AuthService {
         String userId = jwtTokenProvider.getUserId(refreshToken);
         String key = "RFT:" + userId;
 
-        Boolean existed = redisTemplate.delete(key);
+        boolean existed = redisService.delete(key);
         if (existed) {
             log.info("Redis 리프레시 토큰 삭제: {}", key);
         } else {
@@ -127,7 +131,7 @@ public class AuthServiceImpl implements AuthService {
         User user = authRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException(ExceptionCode.NOT_FOUND));
         //저장된 refreshToken 가져오기
-        String savedRefreshToken = redisTemplate.opsForValue().get("RFT:" + userId);
+        String savedRefreshToken = redisService.get("RFT:" + userId);
         if (savedRefreshToken == null || !jwtTokenProvider.validateToken(savedRefreshToken)) {
             throw new ApiException(ExceptionCode.UNAUTHORIZED);
         }
@@ -135,7 +139,7 @@ public class AuthServiceImpl implements AuthService {
         String newAccessToken = jwtTokenProvider.createAccessToken(user);
         String newRefreshToken = jwtTokenProvider.createRefreshToken(user);
         //새로운 refreshToken Redis에 저장
-        redisTemplate.opsForValue().set("RFT:" + userId, newRefreshToken, 7, TimeUnit.DAYS);
+        redisService.set("RFT:" + userId, newRefreshToken, 7, TimeUnit.DAYS);
 
         return JwtTokens.builder()
                 .accessToken(newAccessToken)
