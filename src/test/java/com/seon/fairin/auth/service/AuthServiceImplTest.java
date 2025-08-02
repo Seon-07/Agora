@@ -224,7 +224,7 @@ class AuthServiceImplTest {
 
             assertEquals(newAccessToken, tokens.getAccessToken());
             assertEquals(newRefreshToken, tokens.getRefreshToken());
-            verify(redisService).set("RFT:" + user.getUserId(), newRefreshToken, 7, TimeUnit.DAYS);
+            verify(redisService).set("RFT:" + user.getId(), newRefreshToken, 7, TimeUnit.DAYS);
         }
     }
 

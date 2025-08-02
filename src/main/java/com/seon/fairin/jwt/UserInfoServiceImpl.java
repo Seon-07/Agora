@@ -22,8 +22,8 @@ public class UserInfoServiceImpl implements UserDetailsService {
     private final AuthRepository authRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        User user = authRepository.findByUserId(userId)
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+        User user = authRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ExceptionCode.NOT_FOUND));
         return new UserInfo(user);
     }

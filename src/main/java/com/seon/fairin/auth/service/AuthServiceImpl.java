@@ -6,16 +6,15 @@ import com.seon.common.util.IdGenerater;
 import com.seon.fairin.auth.dto.JoinRequest;
 import com.seon.fairin.auth.dto.JwtTokens;
 import com.seon.fairin.auth.dto.LoginRequest;
-import com.seon.fairin.common.service.RedisService;
-import com.seon.fairin.user.entity.User;
 import com.seon.fairin.auth.repository.AuthRepository;
+import com.seon.fairin.common.service.RedisService;
 import com.seon.fairin.jwt.JwtTokenProvider;
+import com.seon.fairin.user.entity.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +34,6 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final RedisService redisService;
-
 
     /**
      * 회원가입
@@ -87,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user);
 
         //레디스에 리프레시 토큰 저장
-        redisService.set("RFT:" + user.getUserId(), refreshToken, 7, TimeUnit.DAYS);
+        redisService.set("RFT:" + user.getId(), refreshToken, 7, TimeUnit.DAYS);
 
         return JwtTokens.builder()
                 .accessToken(accessToken)
@@ -124,11 +122,11 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public JwtTokens reissue(HttpServletRequest request) {
-        //리프레시 토큰에서 userId 가져오기
+        //리프레시 토큰에서 id 가져오기
         String refreshToken = getToken(request);
         String userId = jwtTokenProvider.getUserId(refreshToken);
         //유저 찾아오기
-        User user = authRepository.findByUserId(userId)
+        User user = authRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(ExceptionCode.NOT_FOUND));
         //저장된 refreshToken 가져오기
         String savedRefreshToken = redisService.get("RFT:" + userId);
@@ -140,7 +138,7 @@ public class AuthServiceImpl implements AuthService {
         String newRefreshToken = jwtTokenProvider.createRefreshToken(user);
         //새로운 refreshToken Redis에 저장
         redisService.set("RFT:" + userId, newRefreshToken, 7, TimeUnit.DAYS);
-
+        log.info(user.getUserId() + "토큰 재발급");
         return JwtTokens.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)

@@ -4,6 +4,7 @@ import com.seon.fairin.jwt.UserInfo;
 import com.seon.fairin.room.dto.CreateRoomRequest;
 import com.seon.fairin.room.dto.RoomResponse;
 import com.seon.fairin.room.dto.RoomStatus;
+import com.seon.fairin.room.entity.Room;
 
 import java.util.List;
 
@@ -13,7 +14,9 @@ import java.util.List;
  * @since 2025-05-18
  */
 public interface RoomService {
-    void createRoom(CreateRoomRequest createRoomRequest, UserInfo userInfo);
+    RoomResponse createRoom(CreateRoomRequest createRoomRequest, UserInfo userInfo);
 
     List<RoomResponse> getRoomList(RoomStatus status);
+
+    RoomResponse getRoom(String id, UserInfo userInfo);
 }

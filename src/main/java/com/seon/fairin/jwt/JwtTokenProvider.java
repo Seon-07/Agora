@@ -58,7 +58,7 @@ public class JwtTokenProvider {
     }
 
     private String createToken(User user, long validTime, String type) {
-        Claims claims = Jwts.claims().setSubject(user.getUserId());
+        Claims claims = Jwts.claims().setSubject(user.getId());
         claims.put("type", type);
         claims.put("role", user.getRole());
         Date now = new Date();

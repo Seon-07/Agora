@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +39,7 @@ public class RoomServiceImpl implements RoomService {
      * 채팅 방 생성
      */
     @Transactional
-    public void createRoom(CreateRoomRequest createRoomRequest, UserInfo userInfo) {
+    public RoomResponse createRoom(CreateRoomRequest createRoomRequest, UserInfo userInfo) {
         //주제 추출
         String topic = createRoomRequest.getTopic();
         //주제 검증
@@ -58,7 +59,7 @@ public class RoomServiceImpl implements RoomService {
                     .hostId(userInfo.getId())
                     .isPrivate(createRoomRequest.isPrivate())
                     .build();
-            roomRepository.save(room);
+            return toRoomResponse(roomRepository.save(room));
             //redisTemplate.opsForValue().set("ROOM:" + id, room, 1, TimeUnit.DAYS);
         }else if(validResult.equals("F")) {
             throw new ApiException(ExceptionCode.VALIDATION_ERROR, validDes);
@@ -78,6 +79,16 @@ public class RoomServiceImpl implements RoomService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 채팅방 접속
+     */
+    public RoomResponse getRoom(String id, UserInfo userInfo) {
+        Optional<Room> room = roomRepository.findById(id);
+        if(room.isEmpty()){
+            throw new ApiException(ExceptionCode.NOT_FOUND);
+        }
+        return toRoomResponse(room.get());
+    }
     /**
      * Entity -> DTO
      */

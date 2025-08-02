@@ -28,8 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
-        log.info("URI: {}", uri);
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod()) || uri.startsWith("/api/auth/")) {
+        log.info("URI: {}", uri); //사용자의 요청
+        // auth 관련 요청은 다음 필터로
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod()) ||
+                uri.equals("/api/auth/login") || //로그인
+                uri.equals("/api/auth/join") || //회원가입
+                uri.equals("/api/auth/reissue")) { //토큰 재발급
             filterChain.doFilter(request, response);
             return;
         }
@@ -39,8 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }else{
+                System.out.println(token);
+                System.out.println(jwtTokenProvider.validateToken(token));
                 log.info("JWT 인증 실패: 토큰이 만료되거나 없음.");
-                response.setStatus(ExceptionCode.FORBIDDEN.getStatus());
+                response.setStatus(ExceptionCode.UNAUTHORIZED.getStatus());
                 return;
             }
         } catch (Exception e) {

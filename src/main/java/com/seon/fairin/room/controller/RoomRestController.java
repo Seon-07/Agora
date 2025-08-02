@@ -2,7 +2,6 @@ package com.seon.fairin.room.controller;
 
 import com.seon.common.response.ApiResponse;
 import com.seon.common.response.DataResult;
-import com.seon.common.response.OperationResult;
 import com.seon.fairin.jwt.UserInfo;
 import com.seon.fairin.room.dto.CreateRoomRequest;
 import com.seon.fairin.room.dto.RoomStatus;
@@ -28,10 +27,16 @@ public class RoomRestController {
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createRoom(@RequestBody @Valid CreateRoomRequest createRoomRequest, @AuthenticationPrincipal UserInfo user) {
-        roomService.createRoom(createRoomRequest, user);
-        ApiResponse responseBody = OperationResult.success("방 생성 성공");
+        ApiResponse responseBody = DataResult.success(roomService.createRoom(createRoomRequest, user), "방 생성 성공");
         return ResponseEntity.ok().body(responseBody);
     }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse> getRoom(@RequestParam String id, @AuthenticationPrincipal UserInfo user) {
+        ApiResponse responseBody = DataResult.success(roomService.getRoom(id, user), "방 입장 성공");
+        return ResponseEntity.ok().body(responseBody);
+    }
+
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse> getRoomList(@RequestParam RoomStatus status){
