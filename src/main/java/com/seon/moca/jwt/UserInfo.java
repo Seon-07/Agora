@@ -55,6 +55,8 @@ public class UserInfo implements UserDetails {
         return user.isUseYn() && !user.isDelYn();
     }
 
+    public User getUser() {return user;}
+
     public String getId() {
         return user.getId();
     }

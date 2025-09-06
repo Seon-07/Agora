@@ -3,21 +3,24 @@ package com.seon.moca.room.service;
 import com.seon.common.exception.ApiException;
 import com.seon.common.exception.ExceptionCode;
 import com.seon.common.util.IdGenerater;
+import com.seon.moca.auth.repository.AuthRepository;
 import com.seon.moca.gemini.dto.PromptDiv;
 import com.seon.moca.gemini.service.GeminiService;
 import com.seon.moca.jwt.UserInfo;
 import com.seon.moca.room.dto.CreateRoomRequest;
+import com.seon.moca.room.dto.DebateSide;
 import com.seon.moca.room.dto.RoomResponse;
 import com.seon.moca.room.dto.RoomStatus;
 import com.seon.moca.room.entity.Room;
 import com.seon.moca.room.repository.RoomRepository;
+import com.seon.moca.user.entity.User;
 import com.seon.moca.util.GeminiParser;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,16 +55,28 @@ public class RoomServiceImpl implements RoomService {
         //주제 검증 사유
         String validDes = parsingResponse[1].trim();
 
+        //방생성자 찬반 구분
+        DebateSide side = createRoomRequest.getSide();
+
         if(validResult.equals("T")) {
             String id = IdGenerater.generate();
+            User host = userInfo.getUser();
+            //채팅방 빌더
             Room room = Room.builder()
                     .id(id)
                     .name(createRoomRequest.getName())
                     .topic(validDes)
-                    .hostId(userInfo.getId())
+                    .host(host)
                     .isPrivate(createRoomRequest.isPrivate())
                     .build();
-            RoomResponse roomResponse = toRoomResponse(roomRepository.save(room));
+            //찬성 반대 분기처리
+            if(side == DebateSide.PRO) {
+                room.assignPro(host); // 찬성측일 경우 찬성에 아이디 주입
+            }else{
+                room.assignCon(host); // 반대측일 경우 반대에 아이디 주입
+            }
+            Room savedRoom = roomRepository.save(room);
+            RoomResponse roomResponse = toRoomResponse(savedRoom);
             messagingTemplate.convertAndSend("/topic/rooms", roomResponse);
             return roomResponse;
             //redisTemplate.opsForValue().set("ROOM:" + id, room, 1, TimeUnit.DAYS);
@@ -76,6 +91,7 @@ public class RoomServiceImpl implements RoomService {
     /**
      * 채팅방 상태에 따른 방 목록 가져오기
      */
+    @Transactional(readOnly = true)
     public List<RoomResponse> getRoomList(RoomStatus status) {
         List<Room> rooms = roomRepository.findByStatus(status);
         return rooms.stream()
@@ -86,6 +102,7 @@ public class RoomServiceImpl implements RoomService {
     /**
      * 채팅방 접속
      */
+    @Transactional(readOnly = true)
     public RoomResponse getRoom(String id, UserInfo userInfo) {
         Optional<Room> room = roomRepository.findById(id);
         if(room.isEmpty()){
@@ -101,8 +118,9 @@ public class RoomServiceImpl implements RoomService {
                 .id(room.getId())
                 .name(room.getName())
                 .topic(room.getTopic())
-                .hostId(room.getHostId())
-                .opponentId(room.getOpponentId())
+                .hostNickname(room.getHost() == null ? null : room.getHost().getNickname())
+                .proNickname(room.getPro() == null ? null : room.getPro().getNickname())
+                .conNickname(room.getCon() == null ? null : room.getCon().getNickname())
                 .status(room.getStatus())
                 .createDttm(room.getCreateDttm())
                 .startDttm(room.getStartDttm())

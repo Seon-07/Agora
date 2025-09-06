@@ -1,5 +1,6 @@
 package com.seon.moca.room.dto;
 
+import com.seon.moca.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,9 +20,11 @@ public class RoomResponse {
 
     private String topic;
 
-    private String hostId;
+    private String hostNickname;
 
-    private String opponentId;
+    private String proNickname;
+
+    private String conNickname;
 
     private RoomStatus status;
 
