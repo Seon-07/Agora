@@ -17,10 +17,6 @@ spring:
     properties:
       hibernate:
         format_sql: false
-jwt:
-  key: ${JWT_KEY}
-  att: ${JWT_ACCESS_TIME}
-  rtt: ${JWT_REFRESH_TIME}
 cors:
   url: ${CORS_URL}
 
@@ -29,3 +25,8 @@ gemini:
   api:
     key: ${GNKEY}
     uri: ${GNURI}
+
+server:
+  servlet:
+    session:
+      timeout: 30m

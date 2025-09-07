@@ -1,8 +1,8 @@
 package com.seon.moca.auth.service;
 
 import com.seon.moca.auth.dto.JoinRequest;
-import com.seon.moca.auth.dto.JwtTokens;
 import com.seon.moca.auth.dto.LoginRequest;
+import com.seon.moca.common.security.UserInfo;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public interface AuthService {
     void join(JoinRequest joinRequest);
-    JwtTokens login(LoginRequest loginRequest);
-    JwtTokens reissue(HttpServletRequest request);
-    void logout(HttpServletRequest request);
+    boolean login(LoginRequest loginRequest, HttpServletRequest httpRequest);
+    void logout(UserInfo userInfo);
 }

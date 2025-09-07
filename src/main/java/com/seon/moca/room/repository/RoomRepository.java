@@ -1,7 +1,7 @@
 package com.seon.moca.room.repository;
 
-import com.seon.moca.room.entity.Room;
 import com.seon.moca.room.dto.RoomStatus;
+import com.seon.moca.room.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,6 +1,7 @@
 package com.seon.moca.room.entity;
 
 import com.seon.moca.room.dto.RoomStatus;
+import com.seon.moca.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,11 +29,17 @@ public class Room {
     @Column(name = "topic")
     private String topic;
 
-    @Column(name = "host_id", nullable = false)
-    private String hostId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "host_id", nullable = false)
+    private User host;
 
-    @Column(name = "opponent_id", nullable = false)
-    private String opponentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pro_id")
+    private User pro;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "con_id")
+    private User con;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -54,5 +61,13 @@ public class Room {
     protected void onCreate() {
         this.createDttm = LocalDateTime.now();
         this.status = RoomStatus.WAITING;
+    }
+
+    public void assignPro(User user) {
+        this.pro = user;
+    }
+
+    public void assignCon(User user) {
+        this.con = user;
     }
 }

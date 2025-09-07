@@ -19,9 +19,11 @@ public class RoomResponse {
 
     private String topic;
 
-    private String hostId;
+    private String hostNickname;
 
-    private String opponentId;
+    private String proNickname;
+
+    private String conNickname;
 
     private RoomStatus status;
 

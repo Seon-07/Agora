@@ -1,7 +1,7 @@
 package com.seon.moca.gemini.service;
 
-import com.seon.moca.gemini.dto.GeminiRequest;
 import com.seon.moca.config.PromptLoader;
+import com.seon.moca.gemini.dto.GeminiRequest;
 import com.seon.moca.gemini.dto.PromptDiv;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

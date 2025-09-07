@@ -1,6 +1,6 @@
 package com.seon.moca.room.service;
 
-import com.seon.moca.jwt.UserInfo;
+import com.seon.moca.common.security.UserInfo;
 import com.seon.moca.room.dto.CreateRoomRequest;
 import com.seon.moca.room.dto.RoomResponse;
 import com.seon.moca.room.dto.RoomStatus;

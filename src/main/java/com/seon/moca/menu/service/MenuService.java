@@ -1,6 +1,6 @@
 package com.seon.moca.menu.service;
 
-import com.seon.moca.jwt.UserInfo;
+import com.seon.moca.common.security.UserInfo;
 import com.seon.moca.menu.dto.MenuResponse;
 
 import java.util.List;

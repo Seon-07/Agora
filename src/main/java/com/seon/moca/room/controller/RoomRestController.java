@@ -2,7 +2,7 @@ package com.seon.moca.room.controller;
 
 import com.seon.common.response.ApiResponse;
 import com.seon.common.response.DataResult;
-import com.seon.moca.jwt.UserInfo;
+import com.seon.moca.common.security.UserInfo;
 import com.seon.moca.room.dto.CreateRoomRequest;
 import com.seon.moca.room.dto.RoomStatus;
 import com.seon.moca.room.service.RoomService;
@@ -26,17 +26,16 @@ public class RoomRestController {
     private final RoomService roomService;
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createRoom(@RequestBody @Valid CreateRoomRequest createRoomRequest, @AuthenticationPrincipal UserInfo user) {
-        ApiResponse responseBody = DataResult.success(roomService.createRoom(createRoomRequest, user), "방 생성 성공");
+    public ResponseEntity<ApiResponse> createRoom(@RequestBody @Valid CreateRoomRequest createRoomRequest, @AuthenticationPrincipal UserInfo userInfo) {
+        ApiResponse responseBody = DataResult.success(roomService.createRoom(createRoomRequest, userInfo), "방 생성 성공");
         return ResponseEntity.ok().body(responseBody);
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getRoom(@RequestParam String id, @AuthenticationPrincipal UserInfo user) {
-        ApiResponse responseBody = DataResult.success(roomService.getRoom(id, user), "방 입장 성공");
+    public ResponseEntity<ApiResponse> getRoom(@RequestParam String id, @AuthenticationPrincipal UserInfo userInfo) {
+        ApiResponse responseBody = DataResult.success(roomService.getRoom(id, userInfo), "방 입장 성공");
         return ResponseEntity.ok().body(responseBody);
     }
-
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse> getRoomList(@RequestParam RoomStatus status){
