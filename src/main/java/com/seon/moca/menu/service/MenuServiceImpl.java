@@ -1,7 +1,7 @@
 package com.seon.moca.menu.service;
 
 import com.seon.moca.auth.dto.Role;
-import com.seon.moca.jwt.UserInfo;
+import com.seon.moca.common.security.UserInfo;
 import com.seon.moca.menu.dto.MenuResponse;
 import com.seon.moca.menu.entity.Menu;
 import com.seon.moca.menu.repository.MenuRepository;

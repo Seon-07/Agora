@@ -1,9 +1,9 @@
-package com.seon.moca.jwt;
+package com.seon.moca.common.security;
 
 import com.seon.common.exception.ApiException;
 import com.seon.common.exception.ExceptionCode;
-import com.seon.moca.user.entity.User;
 import com.seon.moca.auth.repository.AuthRepository;
+import com.seon.moca.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

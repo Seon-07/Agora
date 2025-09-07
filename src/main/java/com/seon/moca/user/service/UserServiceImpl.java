@@ -1,6 +1,6 @@
 package com.seon.moca.user.service;
 
-import com.seon.moca.jwt.UserInfo;
+import com.seon.moca.common.security.UserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

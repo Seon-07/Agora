@@ -1,6 +1,5 @@
 package com.seon.moca.room.dto;
 
-import com.seon.moca.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 

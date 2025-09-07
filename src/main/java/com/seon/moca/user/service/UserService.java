@@ -1,6 +1,6 @@
 package com.seon.moca.user.service;
 
-import com.seon.moca.jwt.UserInfo;
+import com.seon.moca.common.security.UserInfo;
 
 /**
  * @author seonjihwan

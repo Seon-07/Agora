@@ -4,20 +4,17 @@ import com.seon.common.exception.ApiException;
 import com.seon.common.exception.ExceptionCode;
 import com.seon.common.util.IdGenerater;
 import com.seon.moca.auth.repository.AuthRepository;
+import com.seon.moca.common.security.UserInfo;
+import com.seon.moca.common.service.RedisService;
 import com.seon.moca.gemini.dto.PromptDiv;
 import com.seon.moca.gemini.service.GeminiService;
-import com.seon.moca.jwt.UserInfo;
-import com.seon.moca.room.dto.CreateRoomRequest;
-import com.seon.moca.room.dto.DebateSide;
-import com.seon.moca.room.dto.RoomResponse;
-import com.seon.moca.room.dto.RoomStatus;
+import com.seon.moca.room.dto.*;
 import com.seon.moca.room.entity.Room;
 import com.seon.moca.room.repository.RoomRepository;
 import com.seon.moca.user.entity.User;
 import com.seon.moca.util.GeminiParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +35,8 @@ public class RoomServiceImpl implements RoomService {
     private final GeminiService geminiService;
     private final RoomRepository roomRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisService redisService;
+    private final AuthRepository authRepository;
 
     /**
      * 채팅 방 생성
@@ -60,7 +58,8 @@ public class RoomServiceImpl implements RoomService {
 
         if(validResult.equals("T")) {
             String id = IdGenerater.generate();
-            User host = userInfo.getUser();
+            User host = authRepository.findById(userInfo.getId())
+                    .orElseThrow(() -> new ApiException(ExceptionCode.USER_NOT_FOUND, userInfo.getId()));
             //채팅방 빌더
             Room room = Room.builder()
                     .id(id)
@@ -77,9 +76,8 @@ public class RoomServiceImpl implements RoomService {
             }
             Room savedRoom = roomRepository.save(room);
             RoomResponse roomResponse = toRoomResponse(savedRoom);
-            messagingTemplate.convertAndSend("/topic/rooms", roomResponse);
+            messagingTemplate.convertAndSend("/topic/rooms", new RoomCardResponse(roomResponse));
             return roomResponse;
-            //redisTemplate.opsForValue().set("ROOM:" + id, room, 1, TimeUnit.DAYS);
         }else if(validResult.equals("F")) {
             throw new ApiException(ExceptionCode.VALIDATION_ERROR, validDes);
         }else{
@@ -105,6 +103,7 @@ public class RoomServiceImpl implements RoomService {
     @Transactional(readOnly = true)
     public RoomResponse getRoom(String id, UserInfo userInfo) {
         Optional<Room> room = roomRepository.findById(id);
+        redisService.add("ROOM:" + id + ":participants", userInfo.getNickname());
         if(room.isEmpty()){
             throw new ApiException(ExceptionCode.NOT_FOUND);
         }

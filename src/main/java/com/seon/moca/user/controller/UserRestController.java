@@ -2,7 +2,7 @@ package com.seon.moca.user.controller;
 
 import com.seon.common.response.ApiResponse;
 import com.seon.common.response.DataResult;
-import com.seon.moca.jwt.UserInfo;
+import com.seon.moca.common.security.UserInfo;
 import com.seon.moca.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

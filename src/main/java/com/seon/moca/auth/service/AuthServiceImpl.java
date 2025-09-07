@@ -4,22 +4,24 @@ import com.seon.common.exception.ApiException;
 import com.seon.common.exception.ExceptionCode;
 import com.seon.common.util.IdGenerater;
 import com.seon.moca.auth.dto.JoinRequest;
-import com.seon.moca.auth.dto.JwtTokens;
 import com.seon.moca.auth.dto.LoginRequest;
 import com.seon.moca.auth.repository.AuthRepository;
-import com.seon.moca.common.service.RedisService;
-import com.seon.moca.jwt.JwtTokenProvider;
+import com.seon.moca.common.security.UserInfo;
 import com.seon.moca.user.entity.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author seonjihwan
@@ -31,10 +33,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class AuthServiceImpl implements AuthService {
     private final AuthRepository authRepository;
-    private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final RedisService redisService;
-
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
     /**
      * 회원가입
      */
@@ -65,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
      * 로그인
      */
     @Override
-    public JwtTokens login(LoginRequest loginRequest) {
+    public boolean login(LoginRequest loginRequest, HttpServletRequest httpRequest) {
         //아이디 찾기
         User user = authRepository.findByUserId(loginRequest.getUserId())
                 .orElseThrow(() -> new ApiException(ExceptionCode.INVALID_CREDENTIALS));
@@ -78,84 +79,37 @@ public class AuthServiceImpl implements AuthService {
         if (!user.isUseYn()) throw new ApiException(ExceptionCode.FORBIDDEN, "사용할 수 없는 계정입니다.");
         if (user.isDelYn()) throw new ApiException(ExceptionCode.FORBIDDEN, "삭제된 계정입니다.");
 
+        //시큐리티 서버 세션
+        UserInfo userInfo = new UserInfo(user);
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userInfo, null, userInfo.getAuthorities());
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        HttpSession session = httpRequest.getSession(true);
+        session.setAttribute("SPRING_SECURITY_CONTEXT", context);
+
         log.info(user.getUserId() + "로그인");
-
-        //로그인 성공 시 토큰 생성
-        String refreshToken = jwtTokenProvider.createRefreshToken(user);
-        String accessToken = jwtTokenProvider.createAccessToken(user);
-
-        //레디스에 리프레시 토큰 저장
-        redisService.set("RFT:" + user.getId(), refreshToken, 7, TimeUnit.DAYS);
-
-        return JwtTokens.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return true;
     }
 
     /**
      * 로그아웃
      */
     @Override
-    public void logout(HttpServletRequest request) {
-        //토큰 가져오기
-        String refreshToken = getToken(request);
-
-        if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
-            log.warn("유효하지 않거나 존재하지 않는 리프레시 토큰.");
-            return;
+    public void logout(UserInfo user) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
         }
-        String userId = jwtTokenProvider.getUserId(refreshToken);
-        String key = "RFT:" + userId;
-
-        boolean existed = redisService.delete(key);
-        if (existed) {
-            log.info("Redis 리프레시 토큰 삭제: {}", key);
-        } else {
-            log.warn("Redis에 존재하지 않는 키: {}", key);
-        }
-    }
-
-    /**
-     * 토큰 재발급
-     * - 현재 클라이언트 refresh 토큰이 유효하면 새로운 access, refresh 토큰 재발급
-     */
-    @Override
-    public JwtTokens reissue(HttpServletRequest request) {
-        //리프레시 토큰에서 id 가져오기
-        String refreshToken = getToken(request);
-        String userId = jwtTokenProvider.getUserId(refreshToken);
-        //유저 찾아오기
-        User user = authRepository.findById(userId)
-                .orElseThrow(() -> new ApiException(ExceptionCode.NOT_FOUND));
-        //저장된 refreshToken 가져오기
-        String savedRefreshToken = redisService.get("RFT:" + userId);
-        if (savedRefreshToken == null || !jwtTokenProvider.validateToken(savedRefreshToken)) {
-            throw new ApiException(ExceptionCode.UNAUTHORIZED);
-        }
-        //새로운 accessToken, refreshToken 생성
-        String newAccessToken = jwtTokenProvider.createAccessToken(user);
-        String newRefreshToken = jwtTokenProvider.createRefreshToken(user);
-        //새로운 refreshToken Redis에 저장
-        redisService.set("RFT:" + userId, newRefreshToken, 7, TimeUnit.DAYS);
-        log.info(user.getUserId() + "토큰 재발급");
-        return JwtTokens.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build();
-    }
-
-    /**
-     * 현재 접속중인 클라이언트의 refresh 토큰 가져오기
-     */
-    public String getToken(HttpServletRequest request) {
-        if (request.getCookies() == null) return null;
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("REFRESH_TOKEN")) {
-                return cookie.getValue();
-            }
-        }
-        return null;
+        // JSESSIONID 쿠키 삭제
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // https 쓸거면 true
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 즉시 만료
+        response.addCookie(cookie);
+        //로깅
+        log.info(user.getId() + "로그아웃");
     }
 }
 
