@@ -76,6 +76,8 @@ public class RoomServiceImpl implements RoomService {
             }
             Room savedRoom = roomRepository.save(room);
             RoomResponse roomResponse = toRoomResponse(savedRoom);
+
+            //새로운 방 발행
             messagingTemplate.convertAndSend("/topic/rooms", new RoomCardResponse(roomResponse));
             return roomResponse;
         }else if(validResult.equals("F")) {
@@ -102,12 +104,12 @@ public class RoomServiceImpl implements RoomService {
      */
     @Transactional(readOnly = true)
     public RoomResponse getRoom(String id, UserInfo userInfo) {
-        Optional<Room> room = roomRepository.findById(id);
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ExceptionCode.NOT_FOUND, "존재하지 않는 방입니다."));
         redisService.add("ROOM:" + id + ":participants", userInfo.getNickname());
-        if(room.isEmpty()){
-            throw new ApiException(ExceptionCode.NOT_FOUND);
-        }
-        return toRoomResponse(room.get());
+        //접속자 발행
+        messagingTemplate.convertAndSend("/topic/room/" +room.getId()+"/users", new RoomUserResponse(userInfo));
+        return toRoomResponse(room);
     }
     /**
      * Entity -> DTO
