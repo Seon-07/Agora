@@ -4,6 +4,7 @@ import com.seon.moca.chat.dto.SenderType;
 import com.seon.moca.room.entity.Room;
 import com.seon.moca.user.entity.User;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +15,10 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "chat")
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Chat {
     @Id
     @Column(name= "id")
@@ -23,7 +28,7 @@ public class Chat {
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false, length = 2000)
     private String message;
 
     @ManyToOne(fetch = FetchType.LAZY)
