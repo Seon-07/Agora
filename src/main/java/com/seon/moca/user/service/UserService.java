@@ -1,6 +1,7 @@
 package com.seon.moca.user.service;
 
 import com.seon.moca.common.security.UserInfo;
+import com.seon.moca.user.dto.UserClientInfo;
 
 /**
  * @author seonjihwan
@@ -8,5 +9,5 @@ import com.seon.moca.common.security.UserInfo;
  * @since 2025-05-23
  */
 public interface UserService {
-    String getUserNickname(UserInfo userInfo);
+    UserClientInfo getUserClientInfo(UserInfo userInfo);
 }

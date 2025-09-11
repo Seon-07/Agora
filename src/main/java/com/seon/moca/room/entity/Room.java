@@ -57,6 +57,9 @@ public class Room {
     @Column(name = "is_private", nullable = false)
     private boolean isPrivate;
 
+    @Column(name = "del_yn", nullable = false)
+    private boolean delYn;
+
     @PrePersist
     protected void onCreate() {
         this.createDttm = LocalDateTime.now();
@@ -69,5 +72,9 @@ public class Room {
 
     public void assignCon(User user) {
         this.con = user;
+    }
+
+    public void softDelete(){
+        this.delYn = true;
     }
 }

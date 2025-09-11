@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -93,7 +92,7 @@ public class RoomServiceImpl implements RoomService {
      */
     @Transactional(readOnly = true)
     public List<RoomResponse> getRoomList(RoomStatus status) {
-        List<Room> rooms = roomRepository.findByStatus(status);
+        List<Room> rooms = roomRepository.findByStatusAndDelYn(status, false);
         return rooms.stream()
                 .map(this::toRoomResponse)
                 .collect(Collectors.toList());
@@ -111,6 +110,28 @@ public class RoomServiceImpl implements RoomService {
         messagingTemplate.convertAndSend("/topic/room/" +room.getId()+"/users", new RoomUserResponse(userInfo));
         return toRoomResponse(room);
     }
+
+    @Transactional
+    public void exitRoom(RoomExitRequest roomExitRequest, UserInfo userInfo) {
+        Room room = roomRepository.findById(roomExitRequest.getRoomId())
+                .orElseThrow(() -> new ApiException(ExceptionCode.NOT_FOUND, "존재하지 않는 방입니다."));
+        redisService.removeAll("ROOM:" + room.getId() + ":participants", userInfo.getNickname());
+        if(roomExitRequest.getSide() ==  DebateSide.PRO) {
+            room.assignPro(null);
+        }else{
+            room.assignCon(null);
+        }
+        //토론자 없으면 방 삭제
+        if(room.getPro() == null && room.getCon() == null) {
+            //소프트삭제
+            room.softDelete();
+            //방 삭제 발행
+            messagingTemplate.convertAndSend("/topic/rooms", new RoomExitRequest(room.getId(), userInfo.getId(), roomExitRequest.getSide()));
+            //레디스에서 제거
+            redisService.delete("ROOM:" + room.getId() + ":participants");
+        }
+    }
+
     /**
      * Entity -> DTO
      */

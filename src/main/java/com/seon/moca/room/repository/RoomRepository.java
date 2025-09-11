@@ -13,5 +13,5 @@ import java.util.List;
  * @since 2025-05-18
  */
 public interface RoomRepository extends JpaRepository<Room, String> {
-    List<Room> findByStatus(RoomStatus status);
+    List<Room> findByStatusAndDelYn(RoomStatus status, boolean delYn);
 }

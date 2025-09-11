@@ -2,6 +2,7 @@ package com.seon.moca.room.service;
 
 import com.seon.moca.common.security.UserInfo;
 import com.seon.moca.room.dto.CreateRoomRequest;
+import com.seon.moca.room.dto.RoomExitRequest;
 import com.seon.moca.room.dto.RoomResponse;
 import com.seon.moca.room.dto.RoomStatus;
 
@@ -18,4 +19,6 @@ public interface RoomService {
     List<RoomResponse> getRoomList(RoomStatus status);
 
     RoomResponse getRoom(String id, UserInfo userInfo);
+
+    void exitRoom(RoomExitRequest roomExitRequest, UserInfo userInfo);
 }

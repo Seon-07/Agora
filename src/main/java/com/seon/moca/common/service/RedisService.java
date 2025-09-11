@@ -48,8 +48,14 @@ public class RedisService {
         return listOperations.range(key, start, end);
     }
 
+    //리스트에서 해당값 전체 삭제하기
+    public void removeAll(String key, String value) {
+        listOperations.remove(key, 0, value);
+    }
+
+    //리스트에서 해당 값 삭제
     public void remove(String key, String value) {
-        redisTemplate.opsForList().remove(key, 0, value);
+        listOperations.remove(key, 1, value);
     }
 
     public boolean delete(String key) {

@@ -25,9 +25,9 @@ public class UserRestController {
 
     private final UserService userService;
 
-    @GetMapping("/nickname")
-    public ResponseEntity<ApiResponse> getUserName(@AuthenticationPrincipal UserInfo user){
-        ApiResponse responseBody = DataResult.success(userService.getUserNickname(user));
+    @GetMapping("/info")
+    public ResponseEntity<ApiResponse> getUserClientInfo(@AuthenticationPrincipal UserInfo user){
+        ApiResponse responseBody = DataResult.success(userService.getUserClientInfo(user));
         return ResponseEntity.ok().body(responseBody);
     }
 }

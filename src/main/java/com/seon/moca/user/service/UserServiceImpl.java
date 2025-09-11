@@ -1,6 +1,7 @@
 package com.seon.moca.user.service;
 
 import com.seon.moca.common.security.UserInfo;
+import com.seon.moca.user.dto.UserClientInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    public String getUserNickname(UserInfo userInfo){
-        return userInfo.getNickname();
+    public UserClientInfo getUserClientInfo(UserInfo userInfo){
+        return new UserClientInfo(userInfo);
     }
 }

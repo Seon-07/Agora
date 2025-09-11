@@ -17,10 +17,13 @@ public class RoomCardResponse {
 
     private RoomStatus status;
 
+    private String type;
+
     public RoomCardResponse(RoomResponse roomResponse) {
         this.id = roomResponse.getId();
         this.name = roomResponse.getName();
         this.topic = roomResponse.getTopic();
         this.status = roomResponse.getStatus();
-    }
+        this.type = "add";
+     }
 }

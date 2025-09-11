@@ -2,8 +2,10 @@ package com.seon.moca.room.controller;
 
 import com.seon.common.response.ApiResponse;
 import com.seon.common.response.DataResult;
+import com.seon.common.response.OperationResult;
 import com.seon.moca.common.security.UserInfo;
 import com.seon.moca.room.dto.CreateRoomRequest;
+import com.seon.moca.room.dto.RoomExitRequest;
 import com.seon.moca.room.dto.RoomStatus;
 import com.seon.moca.room.service.RoomService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,6 +36,13 @@ public class RoomRestController {
     @GetMapping
     public ResponseEntity<ApiResponse> getRoom(@RequestParam String id, @AuthenticationPrincipal UserInfo userInfo) {
         ApiResponse responseBody = DataResult.success(roomService.getRoom(id, userInfo), "방 입장 성공");
+        return ResponseEntity.ok().body(responseBody);
+    }
+
+    @PostMapping("/exit")
+    public ResponseEntity<ApiResponse> exitRoom(@RequestBody RoomExitRequest roomExitRequest, @AuthenticationPrincipal UserInfo userInfo) {
+        roomService.exitRoom(roomExitRequest, userInfo);
+        ApiResponse responseBody = OperationResult.success("방 퇴장");
         return ResponseEntity.ok().body(responseBody);
     }
 
