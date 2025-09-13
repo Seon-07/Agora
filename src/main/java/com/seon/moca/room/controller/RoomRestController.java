@@ -51,4 +51,10 @@ public class RoomRestController {
         ApiResponse responseBody = DataResult.success(roomService.getRoomList(status));
         return ResponseEntity.ok().body(responseBody);
     }
+
+    @GetMapping("/participants")
+    public ResponseEntity<ApiResponse> getParticipants(@RequestParam String roomId, @AuthenticationPrincipal UserInfo userInfo){
+        ApiResponse responseBody = DataResult.success(roomService.getParticipants(roomId, userInfo));
+        return ResponseEntity.ok().body(responseBody);
+    }
 }

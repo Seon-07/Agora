@@ -1,10 +1,7 @@
 package com.seon.moca.room.service;
 
 import com.seon.moca.common.security.UserInfo;
-import com.seon.moca.room.dto.CreateRoomRequest;
-import com.seon.moca.room.dto.RoomExitRequest;
-import com.seon.moca.room.dto.RoomResponse;
-import com.seon.moca.room.dto.RoomStatus;
+import com.seon.moca.room.dto.*;
 
 import java.util.List;
 
@@ -21,4 +18,6 @@ public interface RoomService {
     RoomResponse getRoom(String id, UserInfo userInfo);
 
     void exitRoom(RoomExitRequest roomExitRequest, UserInfo userInfo);
+
+    RoomPaticipantsResponse getParticipants(String roomId, UserInfo userInfo);
 }

@@ -11,7 +11,8 @@ import lombok.Getter;
 public enum RoomStatus {
     WAITING("대기중"),
     ONGOING("진행중"),
-    CLOSED("종료");
+    CLOSED("종료"),
+    EXIT("강제종료");
 
     private final String des;
 

@@ -17,9 +17,12 @@ public class RoomUserResponse {
 
     private String nickname;
 
-    public RoomUserResponse(UserInfo userInfo) {
+    private String type;
+
+    public RoomUserResponse(UserInfo userInfo, String type) {
         this.id = userInfo.getId();
         this.name = userInfo.getName();
         this.nickname = userInfo.getNickname();
+        this.type = type;
     }
 }

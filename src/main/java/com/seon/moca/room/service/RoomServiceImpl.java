@@ -19,6 +19,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -105,12 +106,19 @@ public class RoomServiceImpl implements RoomService {
     public RoomResponse getRoom(String id, UserInfo userInfo) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ExceptionCode.NOT_FOUND, "존재하지 않는 방입니다."));
-        redisService.add("ROOM:" + id + ":participants", userInfo.getNickname());
+        //중복 제거
+        List<String> current = redisService.getList("ROOM:" + id + ":participants", 0, -1);
+        if (!current.contains(userInfo.getNickname())) {
+            redisService.add("ROOM:" + id + ":participants", userInfo.getNickname());
+        }
         //접속자 발행
-        messagingTemplate.convertAndSend("/topic/room/" +room.getId()+"/users", new RoomUserResponse(userInfo));
+        messagingTemplate.convertAndSend("/topic/room/" +room.getId()+"/users", new RoomUserResponse(userInfo, "add"));
         return toRoomResponse(room);
     }
 
+    /**
+     * 채팅방 퇴장
+     */
     @Transactional
     public void exitRoom(RoomExitRequest roomExitRequest, UserInfo userInfo) {
         Room room = roomRepository.findById(roomExitRequest.getRoomId())
@@ -121,17 +129,28 @@ public class RoomServiceImpl implements RoomService {
         }else{
             room.assignCon(null);
         }
+        //참가자 퇴장
+        messagingTemplate.convertAndSend("/topic/room/" +room.getId()+"/users", new RoomUserResponse(userInfo, "delete"));
         //토론자 없으면 방 삭제
         if(room.getPro() == null && room.getCon() == null) {
             //소프트삭제
             room.softDelete();
             //방 삭제 발행
-            messagingTemplate.convertAndSend("/topic/rooms", new RoomExitRequest(room.getId(), userInfo.getId(), roomExitRequest.getSide()));
+            messagingTemplate.convertAndSend("/topic/rooms", new RoomExitResponse(room.getId()));
+            messagingTemplate.convertAndSend("/topic/room/" + room.getId()+"/state", new RoomStateResponse(room, 0, RoomStatus.EXIT));
             //레디스에서 제거
             redisService.delete("ROOM:" + room.getId() + ":participants");
         }
     }
 
+    /**
+     * 채팅방 접속자 조회
+     */
+    public RoomPaticipantsResponse getParticipants(String roomId, UserInfo userInfo) {
+        String room = "ROOM:" + roomId + ":participants";
+        List<String> participants = redisService.getList(room, 0, -1);
+        return new RoomPaticipantsResponse(participants);
+    }
     /**
      * Entity -> DTO
      */
